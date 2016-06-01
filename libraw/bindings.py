@@ -14,6 +14,9 @@ from libraw.callbacks import progress_callback
 from libraw.errors import c_error
 from libraw import structs_16
 from libraw import structs_17
+import os.path
+import sys
+import platform
 
 
 class LibRaw(CDLL):
@@ -28,7 +31,11 @@ class LibRaw(CDLL):
     """
 
     def __init__(self):  # pragma: no cover
-        libraw = util.find_library('raw')
+        # Try the default prefix (works for anaconda installation) and fall back to traditionnal otherwise
+        shared_lib_ext = {'Linux':'.so', 'Darwin':'.dylib', 'Windows':'.dll'}
+        libraw = os.path.join(sys.prefix, 'lib', 'libraw' + shared_lib_ext[platform.system()])
+        if not os.path.exists(libraw):
+            libraw = util.find_library('raw')
         try:
             if libraw is not None:
                 super(LibRaw, self).__init__(libraw)
